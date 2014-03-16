@@ -13,7 +13,7 @@ module Picasa
       #
       # @return [Presenter::AlbumList]
       def list(options = {})
-        path = "/data/feed/api/user/#{user_id}"
+        path = user_api_path
         response = Connection.new.get(path: path, query: options, headers: auth_header)
 
         Presenter::AlbumList.new(response.parsed_response["feed"])
@@ -30,7 +30,7 @@ module Picasa
       # @return [Presenter::Album]
       # @raise [NotFoundError] raised when album cannot be found
       def show(album_id, options = {})
-        path = "/data/feed/api/user/#{user_id}/albumid/#{album_id}"
+        path = user_api_path + "/albumid/#{album_id}"
         response = Connection.new.get(path: path, query: options, headers: auth_header)
 
         Presenter::Album.new(response.parsed_response["feed"])
@@ -53,7 +53,7 @@ module Picasa
         params[:access] ||= "private"
 
         template = Template.new(:new_album, params)
-        path = "/data/feed/api/user/#{user_id}"
+        path = user_api_path
         response = Connection.new.post(path: path, body: template.render, headers: auth_header)
 
         Presenter::Album.new(response.parsed_response["entry"])

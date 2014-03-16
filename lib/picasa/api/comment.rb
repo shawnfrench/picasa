@@ -15,7 +15,7 @@ module Picasa
         photo_id = options.delete(:photo_id)
         raise(ArgumentError, "You must specify album_id when providing photo_id") if photo_id && !album_id
 
-        path = "/data/feed/api/user/#{user_id}"
+        path = user_api_path
         path << "/albumid/#{album_id}" if album_id
         path << "/photoid/#{photo_id}" if photo_id
 
@@ -37,7 +37,7 @@ module Picasa
         photo_id = params.delete(:photo_id) || raise(ArgumentError, "You must specify photo_id")
         params[:content] || raise(ArgumentError, "You must specify content")
 
-        path = "/data/feed/api/user/#{user_id}/albumid/#{album_id}/photoid/#{photo_id}"
+        path = user_api_path + "/albumid/#{album_id}/photoid/#{photo_id}"
 
         template = Template.new("new_comment", params)
 

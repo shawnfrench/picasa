@@ -49,7 +49,7 @@ module Picasa
         if params.has_key?(:timestamp)
           params[:timestamp] = params[:timestamp].to_i * 1000
         end
-        path = "/data/entry/api/user/#{user_id}/albumid/#{album_id}/photoid/#{photo_id}"
+        path = user_api_path + "/albumid/#{album_id}/photoid/#{photo_id}"
         response = Connection.new.patch(path: path, body: template.render, headers: headers)
 
         Presenter::Photo.new(response.parsed_response["entry"])
@@ -67,11 +67,29 @@ module Picasa
       # @raise [PreconditionFailedError] raised when ETag does not match
       def destroy(album_id, photo_id, options = {})
         headers = auth_header.merge({"If-Match" => options.fetch(:etag, "*")})
-        path = "/data/entry/api/user/#{user_id}/albumid/#{album_id}/photoid/#{photo_id}"
+        path = user_api_path + "/albumid/#{album_id}/photoid/#{photo_id}"
         Connection.new.delete(path: path, headers: headers)
         true
       end
       alias :delete :destroy
+
+      # Gets given photo
+      #
+      # @param [String] album_id album id
+      # @param [String] photo_id photo id
+      # @param [Hash] options request parameters
+      # @option options [String] :etag destroys only when ETag matches - protects before destroying other client changes
+      #
+      # @return [Presenter::Photo] the photo
+      # @raise [NotFoundError] raised when album or photo cannot be found
+      # @raise [PreconditionFailedError] raised when ETag does not match
+      def destroy(album_id, photo_id, options = {})
+        headers = auth_header.merge({"If-Match" => options.fetch(:etag, "*")})
+        path = user_api_path + "/albumid/#{album_id}/photoid/#{photo_id}"
+        response = Connection.new.get(path: path, headers: headers)
+
+        Presenter::Photo.new(response.parsed_response["entry"])
+      end
     end
   end
 end
